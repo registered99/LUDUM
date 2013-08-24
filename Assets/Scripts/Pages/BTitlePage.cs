@@ -77,7 +77,7 @@ public class BTitlePage : BPage
 
 	private void HandleStartButtonRelease (FButton button)
 	{
-		BMain.instance.GoToPage(BPageType.InGamePage);
+		BMain.instance.GoToPage(BPageType.SelectPage);
 	}
 	
 	protected void HandleUpdate ()

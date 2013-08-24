@@ -13,16 +13,10 @@ public class BSelectPage : BPage, FMultiTouchableInterface
 	private FLabel _scoreLabel;
 	private FLabel _timeLabel;
 	
-	private int _frameCount = 0;
 	private float _secondsLeft = 15.9f;
 	
-	private int _totalBananasCreated = 0;
 	private FContainer _foodContainer;
 	private List<BFood> _foods = new List<BFood>();
-	private List<BFood> _selected_foods = new List<BFood>();
-	
-	private int _maxFramesTillNextBanana = 22;
-	private int _framesTillNextBanana = 0;	
 	
 	private FContainer _effectHolder;
 	
@@ -50,10 +44,11 @@ public class BSelectPage : BPage, FMultiTouchableInterface
 			foodList.Add ("Banana");
 		}
 		LayOutFood (foodList);
+		//Clear out selected list
+		BMain.instance.selected_foods.Clear ();
 		
 		_closeButton = new FButton("CloseButton_normal", "CloseButton_down","CloseButton_over", "ClickSound");
 		AddChild(_closeButton);
-		
 		_closeButton.SignalRelease += HandleCloseButtonRelease;
 		
 		_scoreLabel = new FLabel("Franchise", "0 Bananas");
@@ -113,7 +108,7 @@ public class BSelectPage : BPage, FMultiTouchableInterface
 
 	private void HandleCloseButtonRelease (FButton button)
 	{
-		BMain.instance.GoToPage(BPageType.TitlePage);
+		BMain.instance.GoToPage(BPageType.InGamePage);
 	}
 	
 	public void CreateFood(string foodName, float x, float y)
@@ -204,11 +199,11 @@ public class BSelectPage : BPage, FMultiTouchableInterface
 		Go.to (explodeSprite, 0.3f, new TweenConfig().floatProp("scale",1.3f).floatProp("alpha",0.0f).onComplete(HandleExplodeSpriteComplete));
 	}
 	private void TouchFood(BFood food){
-		if(	_selected_foods.Contains(food)){
-			_selected_foods.Remove(food);
+		if(	BMain.instance.selected_foods.Contains(food)){
+			BMain.instance.selected_foods.Remove(food);
 			food.alpha = 1f;
 		} else {
-			_selected_foods.Add(food);
+		BMain.instance.selected_foods.Add(food);
 			food.alpha = 0.5f;
 		}
 	}

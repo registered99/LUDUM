@@ -11,17 +11,10 @@ public class BInGamePage : BPage, FMultiTouchableInterface
 	private FButton _closeButton;
 	
 	private FLabel _scoreLabel;
+	private int _badFoodCount;
 	private FLabel _timeLabel;
 	
-	private int _frameCount = 0;
 	private float _secondsLeft = 15.9f;
-	
-	private int _totalBananasCreated = 0;
-	private FContainer _bananaContainer;
-	private List<BBanana> _bananas = new List<BBanana>();
-	
-	private int _maxFramesTillNextBanana = 22;
-	private int _framesTillNextBanana = 0;	
 	
 	private FContainer _effectHolder;
 	
@@ -36,15 +29,10 @@ public class BInGamePage : BPage, FMultiTouchableInterface
 
 	override public void Start()
 	{
-		BMain.instance.score = 0;
+		_badFoodCount = 0;
 		
 		_background = new FSprite("JungleBlurryBG");
 		AddChild(_background);
-
-		//the banana container will make it easy to keep the bananas at the right depth
-		_bananaContainer = new FContainer(); 
-		AddChild(_bananaContainer); 
-		
 		
 		_closeButton = new FButton("CloseButton_normal", "CloseButton_down","CloseButton_over", "ClickSound");
 		AddChild(_closeButton);
@@ -52,7 +40,7 @@ public class BInGamePage : BPage, FMultiTouchableInterface
 		
 		_closeButton.SignalRelease += HandleCloseButtonRelease;
 		
-		_scoreLabel = new FLabel("Franchise", "0 Bananas");
+		_scoreLabel = new FLabel("Franchise", "0 Bad food");
 		_scoreLabel.anchorX = 0.0f;
 		_scoreLabel.anchorY = 1.0f;
 		_scoreLabel.scale = 0.75f;
@@ -62,8 +50,7 @@ public class BInGamePage : BPage, FMultiTouchableInterface
 		_timeLabel.anchorX = 1.0f;
 		_timeLabel.anchorY = 1.0f;
 		_timeLabel.scale = 0.75f;
-		_timeLabel.color = new Color(1.0f,1.0f,1.0f);
-		
+		_timeLabel.color = new Color(1.0f,1.0f,1.0f);	
 		AddChild(_scoreLabel);
 		AddChild(_timeLabel);
 		
@@ -86,6 +73,8 @@ public class BInGamePage : BPage, FMultiTouchableInterface
 			setDelay(0.0f).
 			floatProp("scale",1.0f).
 			setEaseType(EaseType.BackOut));
+		
+		TallyScore();
 		
 		HandleResize(true); //force resize to position everything at the start
 		
@@ -111,12 +100,6 @@ public class BInGamePage : BPage, FMultiTouchableInterface
 		 
 		_closeButton.x = -Futile.screen.halfWidth + 30.0f;
 		_closeButton.y = -Futile.screen.halfHeight + 30.0f;
-		
-		_scoreLabel.x = -Futile.screen.halfWidth + 10.0f;
-		_scoreLabel.y = Futile.screen.halfHeight - 10.0f;
-		
-		_timeLabel.x = Futile.screen.halfWidth - 10.0f;
-		_timeLabel.y = Futile.screen.halfHeight - 10.0f;
 	}
 
 	private void HandleCloseButtonRelease (FButton button)
@@ -127,9 +110,6 @@ public class BInGamePage : BPage, FMultiTouchableInterface
 	public void HandleGotBanana(BBanana banana)
 	{
 		CreateBananaExplodeEffect(banana);
-		
-		_bananaContainer.RemoveChild (banana);
-		_bananas.Remove(banana);
 
 		BMain.instance.score++;
 		
@@ -152,17 +132,6 @@ public class BInGamePage : BPage, FMultiTouchableInterface
 		FSoundManager.PlaySound("BananaSound", 1.0f);
 	}
 
-	public void CreateBanana ()
-	{
-		BBanana banana = new BBanana();
-		_bananaContainer.AddChild(banana);
-		banana.x = RXRandom.Range(-Futile.screen.width/2 + 50, Futile.screen.width/2 - 50); //padded inside the screen width
-		banana.y = Futile.screen.height/2 + 60; //above the screen
-		_bananas.Add(banana);
-		_totalBananasCreated++;
-	}
-	
-	
 	protected void HandleUpdate ()
 	{
 		_secondsLeft -= Time.deltaTime;
@@ -181,35 +150,7 @@ public class BInGamePage : BPage, FMultiTouchableInterface
 			_timeLabel.color = new Color(1.0f,0.2f,0.0f);
 		}
 		
-		_framesTillNextBanana--;
-		
-		if(_framesTillNextBanana <= 0)
-		{
-			if(_totalBananasCreated % 4 == 0) //every 4 bananas, make the bananas come a little bit sooner
-			{
-				_maxFramesTillNextBanana--;
-			}
-			
-			_framesTillNextBanana = _maxFramesTillNextBanana;
-			
-			CreateBanana();
-		}
-		
-		
 		//loop backwards so that if we remove a banana from _bananas it won't cause problems
-		for (int b = _bananas.Count-1; b >= 0; b--) 
-		{
-			BBanana banana = _bananas[b];
-			
-			//remove a banana if it falls off screen
-			if(banana.y < -Futile.screen.halfHeight - 50)
-			{
-				_bananas.Remove(banana);
-				_bananaContainer.RemoveChild(banana);
-			}
-		}
-		
-		_frameCount++;
 	}
 	
 	public void HandleMultiTouch(FTouch[] touches)
@@ -222,18 +163,18 @@ public class BInGamePage : BPage, FMultiTouchableInterface
 				//we go reverse order so that if we remove a banana it doesn't matter
 				//and also so that that we check from front to back
 				
-				for (int b = _bananas.Count-1; b >= 0; b--) 
-				{
-					BBanana banana = _bananas[b];
-					
-					Vector2 touchPos = banana.GlobalToLocal(touch.position);
-					
-					if(banana.textureRect.Contains(touchPos))
-					{
-						HandleGotBanana(banana);	
-						break; //break so that a touch can only hit one banana at a time
-					}
-				}
+//				for (int b = _bananas.Count-1; b >= 0; b--) 
+//				{
+//					BBanana banana = _bananas[b];
+//					
+//					Vector2 touchPos = banana.GlobalToLocal(touch.position);
+//					
+//					if(banana.textureRect.Contains(touchPos))
+//					{
+//						HandleGotBanana(banana);	
+//						break; //break so that a touch can only hit one banana at a time
+//					}
+//				}
 			}
 		}
 	}
@@ -257,6 +198,17 @@ public class BInGamePage : BPage, FMultiTouchableInterface
 	{
 		FSprite explodeSprite = (tween as Tween).target as FSprite;
 		explodeSprite.RemoveFromContainer();
+	}
+	
+	private void TallyScore(){
+		foreach(BFood food in BMain.instance.selected_foods)
+		{
+			if(BMain.instance.bad_foods.Contains(food.name)){
+				++_badFoodCount;
+				Debug.Log("BAD FOOD DETECTED!: "+food.name);	
+				_scoreLabel.text = ("bad food: " + _badFoodCount);
+			}
+		}
 	}
 }
 
