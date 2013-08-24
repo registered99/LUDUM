@@ -18,6 +18,8 @@ public class BFood : FSprite
 	{
 		this.rotation += _rotationSpeed;
 	}
+	
+	
 
 }
 

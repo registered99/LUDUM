@@ -19,6 +19,7 @@ public class BSelectPage : BPage, FMultiTouchableInterface
 	private int _totalBananasCreated = 0;
 	private FContainer _foodContainer;
 	private List<BFood> _foods = new List<BFood>();
+	private List<BFood> _selected_foods = new List<BFood>();
 	
 	private int _maxFramesTillNextBanana = 22;
 	private int _framesTillNextBanana = 0;	
@@ -126,17 +127,17 @@ public class BSelectPage : BPage, FMultiTouchableInterface
 	
 	public void LayOutFood(List<string> foodlist)
 	{
-		float xStart = -Futile.screen.halfWidth + 55;
-		int maxCols = 5;
+		float xStart = -Futile.screen.halfWidth+70;
+		int maxCols = 4;
 		float y = 0f;
-		float xDiff = Futile.screen.width/foodlist.Count; // change this Screen width to shelf width instead
+		float xDiff = (Futile.screen.width-70)/maxCols; // change this Screen width to shelf width instead
 		
 		int colCount = 0;
 		for(int i = 0; i< foodlist.Count; ++i)
 		{
-			++colCount;
-			CreateFood (foodlist[i], xStart+xDiff*colCount, y);
 			if(colCount > maxCols){ colCount = 0; y -= 55.0f;}
+			CreateFood (foodlist[i], xStart+xDiff*colCount, y);
+			++colCount;
 			
 		}
 		
@@ -173,13 +174,13 @@ public class BSelectPage : BPage, FMultiTouchableInterface
 				
 				for (int f = _foods.Count-1; f >= 0; f--) 
 				{
-					Debug.Log ("poop");
 					BFood food = _foods[f];
 					
 					Vector2 touchPos = food.GlobalToLocal(touch.position);
 					
 					if(food.textureRect.Contains(touchPos))
 					{
+					TouchFood(food);
 					CreateExplodeEffect(food);	
 					break; //break so that a touch can only hit one banana at a time
 					}
@@ -201,6 +202,15 @@ public class BSelectPage : BPage, FMultiTouchableInterface
 		explodeSprite.rotation = food.rotation;
 		
 		Go.to (explodeSprite, 0.3f, new TweenConfig().floatProp("scale",1.3f).floatProp("alpha",0.0f).onComplete(HandleExplodeSpriteComplete));
+	}
+	private void TouchFood(BFood food){
+		if(	_selected_foods.Contains(food)){
+			_selected_foods.Remove(food);
+			food.alpha = 1f;
+		} else {
+			_selected_foods.Add(food);
+			food.alpha = 0.5f;
+		}
 	}
 	
 	private static void HandleExplodeSpriteComplete (AbstractTween tween)
