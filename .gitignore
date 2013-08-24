@@ -1,0 +1,23 @@
+#######
+# Unity Ignores
+# 
+# !!! Warning !!!
+#
+# .. You must convert Unity to using 
+# Metafiles *before* you use this, 
+# or you WILL lose data!
+# 
+
+# OS X only: 
+.DS_Store
+*.swp
+*.Trashes
+
+# All Platforms
+Library
+Temp
+*.csproj
+*.pidb
+*.unityproj
+*.sln
+*.userprefs

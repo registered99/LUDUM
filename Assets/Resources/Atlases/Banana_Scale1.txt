@@ -1,0 +1,20 @@
+{"frames": {
+
+"HumanRightsLogo_CO.jpg":
+{
+	"frame": {"x":2,"y":2,"w":1089,"h":1134},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":1089,"h":1134},
+	"sourceSize": {"w":1089,"h":1134}
+}},
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker ",
+	"version": "1.0",
+	"image": "Banana.png",
+	"format": "RGBA8888",
+	"size": {"w":2048,"h":2048},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:961e1cd91eefba7312b2c69c92142cd3:1/1$"
+}
+}
