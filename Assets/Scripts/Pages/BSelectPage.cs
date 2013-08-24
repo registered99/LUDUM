@@ -29,6 +29,7 @@ public class BSelectPage : BPage, FMultiTouchableInterface
 
 	public BSelectPage()
 	{
+		EnableMultiTouch();
 		ListenForUpdate(HandleUpdate);
 		ListenForResize(HandleResize);
 	}
